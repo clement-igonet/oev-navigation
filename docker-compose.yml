@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  oev:
+    image: abiosoft/caddy
+    ports:
+      - "2015:2015"
+    volumes:
+      - "./src:/srv"
