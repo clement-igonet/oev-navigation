@@ -13,10 +13,10 @@
 //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
 //    Pan - right mouse, or left mouse + ctrl/metaKey, or arrow keys / touch: two-finger move
 
-THREE.OrbitControls = function ( object, domElement ) {
+THREE.OrbitControls = function ( object, domElement, render ) {
 
 	this.object = object;
-
+	this.render = render;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
 	// Set to false to disable this control
@@ -72,7 +72,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.enableKeys = true;
 
 	// The four arrow keys
-	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+	this.keys = { SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
 
 	// Mouse buttons
 	this.mouseButtons = { LEFT: THREE.MOUSE.LEFT, MIDDLE: THREE.MOUSE.MIDDLE, RIGHT: THREE.MOUSE.RIGHT };
@@ -200,7 +200,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 			// update condition is:
 			// min(camera displacement, camera rotation in radians)^2 > EPS
 			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
-
+			scope.render();
 			if ( zoomChanged ||
 				lastPosition.distanceToSquared( scope.object.position ) > EPS ||
 				8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ) {
@@ -242,6 +242,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.panLeft = panLeft;
 	this.PanUp = panUp;
+	this.getZoom = function () {
+		return Math.round(Math.min(Math.max(0, 22 - 2 * Math.log(spherical.radius)), 22));
+	}
+	this.updateScene = function() {};
 	
 	//
 	// internals
@@ -265,6 +269,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	var scale = 1;
 	var panOffset = new THREE.Vector3();
+	var zoom;
 	var zoomChanged = false;
 
 	var rotateStart = new THREE.Vector2();
@@ -286,7 +291,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	function getZoomScale() {
-
 		return Math.pow( 0.95, scope.zoomSpeed );
 
 	}
@@ -543,6 +547,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 		//console.log( 'handleKeyDown' );
 
 		switch ( event.keyCode ) {
+
+			case scope.keys.SPACE:
+				scope.updateScene();
+				break;
 
 			case scope.keys.UP:
 				pan( 0, scope.keyPanSpeed );

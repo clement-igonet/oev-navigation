@@ -37,85 +37,118 @@
 		</div>
 
 		<script src="http://threejs.org/build/three.min.js"></script>
-		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/controls/PlanetControls.js"></script>
+		<script src="js/mesh/EarthTiles.js"></script>
+
 		<!-- <script src="js/Detector.js"></script> -->
 
 		<script>
 
 			// if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-			var camera, controls, scene, renderer;
-
-			var earth, geometry, material;
-
-			var phi, theta;
+			var radius = 6371;
+			var camera, controls, scene, renderer, cameraSurvey;
 			var R = 6400;
-			var loader;
 
+
+			// var tiles = [
+			// 	{z: 1, x: 0, y: 0},
+			// 	{z: 1, x: 1, y: 0},
+			// 	{z: 1, x: 0, y: 1},
+			// 	{z: 1, x: 1, y: 1}
+			// ];
+			var tiles = [
+				{z: 2, x: 0, y: 0},
+				{z: 2, x: 1, y: 0},
+				{z: 2, x: 2, y: 0},
+				{z: 2, x: 3, y: 0},
+				{z: 2, x: 0, y: 1},
+				{z: 2, x: 1, y: 1},
+				{z: 2, x: 2, y: 1},
+				{z: 2, x: 3, y: 1},
+				{z: 2, x: 0, y: 2},
+				{z: 2, x: 1, y: 2},
+				{z: 2, x: 2, y: 2},
+				{z: 2, x: 3, y: 2},
+				{z: 2, x: 0, y: 3},
+				{z: 2, x: 1, y: 3},
+				{z: 2, x: 2, y: 3},
+				{z: 2, x: 3, y: 3}
+		];
 			init();
-			//render(); // remove when using next line for animation loop (requestAnimationFrame)
-			animate();
+			render(); // remove when using next line for animation loop (requestAnimationFrame)
+			//animate();
 
 			function init() {
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xcccccc );
-				scene.fog = new THREE.FogExp2( 0xcccccc, 0.2 / R);
+				scene.fog = new THREE.FogExp2( 0xcccccc, 0.00002 );
 
-				loader = new THREE.TextureLoader();
-
-				phi = 0;
-				theta = 0;
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 
-				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 10 * R );
-				camera.up.set( 0, 0, 1 );
-				camera.position.set( 0, 0, 4 * R );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100000 );
+				cameraSurvey = new THREE.Object3D();
+
+				// camera.position.setFromSpherical(THREE.Spherical(radius * 5, 0, 0));
+				// camera.quaternion.y = Math.PI/4;
+				// camera.quaternion.z = Math.PI/4;
+				// camera.position.setFromSpherical(THREE.Spherical(radius * 1.8, 0, 0));
+				console.log('camera.position:', camera.position);
+
+				scene.add( cameraSurvey );
 
 				// controls
+				controls = new THREE.PlanetControls( camera, renderer.domElement, cameraSurvey );
+				// controls = new THREE.OrbitControls( camera, renderer.domElement, target );
+				controls.maxPolarAngle = 24 * Math.PI / 48; // radians
+				controls.addEventListener( 'change', render );
 
-				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				controls.mouseButtons = { LEFT: THREE.MOUSE.RIGHT, MIDDLE: THREE.MOUSE.MIDDLE, RIGHT: THREE.MOUSE.LEFT };
-
-				controls.panLeft = function ( distance ) {
-					earth.rotation.y += (distance / R) * (Math.cos(controls.getAzimuthalAngle())) / ( Math.max (0.2, Math.cos(earth.rotation.x)));
-					theta = -(distance / R) * (Math.sin(controls.getAzimuthalAngle()));
-					earth.rotation.x = Math.max(Math.min(earth.rotation.x + theta, Math.PI / 2), -Math.PI / 2);
-				};
-
-				controls.panUp = function ( distance ) {
-					earth.rotation.y += (distance / R) * (Math.sin(controls.getAzimuthalAngle())) / ( Math.max (0.2, Math.cos(earth.rotation.x)));
-					theta = (distance / R) * (Math.cos(controls.getAzimuthalAngle()));
-					earth.rotation.x = Math.max(Math.min(earth.rotation.x + theta, Math.PI / 2), -Math.PI / 2);
-				};
-
-				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-				controls.dampingFactor = 0.25;
-
-				controls.screenSpacePanning = false;
-
-				controls.minDistance = 1;
-				controls.maxDistance = 5 * R;
+				controls.minDistance = 100;
+				controls.maxDistance = radius * 4;
 
 				controls.maxPolarAngle = Math.PI / 2;
 
 				// world
 
-				// The X axis is red. The Y axis is green. The Z axis is blue.
-				var sphereAxis = new THREE.AxesHelper(200);
-				scene.add(sphereAxis);
+				earth = new THREE.Object3D();
+				earthTiles = new THREE.EarthTiles(render);
+				earth.add(earthTiles.getObject());
+				scene.add( earth );
+				earthTiles.update(tiles);
 
-				loader.load( 'https://github.com/mrdoob/three.js/raw/dev/examples/textures/planets/earth_atmos_4096.jpg', function ( texture ) {
-				    geometry = new THREE.SphereGeometry( R, 32, 32 );
-   					material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
-					earth = new THREE.Mesh( geometry, material );
-					earth.position.z = -R;
-					earth.updateMatrix();
-					scene.add( earth );
-				} );
+
+				// textureLoader = new THREE.TextureLoader();
+
+				// textureLoader.load(
+				// 	'textures/planets/earth_atmos_4096.jpg',
+				// 	function( tex ) {
+				// 		var geometry = new THREE.SphereBufferGeometry( radius, 100, 50 );
+				// 		var material = new THREE.MeshPhongMaterial( {
+				// 			map: tex,
+				// 			color: 0xffffff,
+				// 			shininess: 200,
+				// 			needsUpdate: true
+				// 		} );
+				// 		var mesh = new THREE.Mesh( geometry, material );
+				// 		mesh.position.set( 0, 0, 0 );
+				// 		scene.add( mesh );
+				// 		render();
+				// 	}
+				// );
+
+				// // target axes
+				// var axesCenter = new THREE.AxesHelper(2000);
+				// axesCenter.position.set( 0, 0, 0 );
+				// scene.add(axesCenter);
+
+				// // target axes
+				// axes = new THREE.AxesHelper(2000);
+				// axes.position.set( 0, 0, 0 );
+				// scene.add(axes);
 
 				// lights
 
@@ -124,13 +157,11 @@
 				scene.add( light );
 
 				var light = new THREE.DirectionalLight( 0x002288 );
-				light.position.set( - 1, - 1, - 1 );
+				light.position.set( -1, -1, -1 );
 				scene.add( light );
 
 				var light = new THREE.AmbientLight( 0x222222 );
 				scene.add( light );
-
-				//
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
@@ -157,7 +188,19 @@
 
 			function render() {
 
+				// renderer.render( scene, camera );
 				renderer.render( scene, camera );
+
+				// if (typeof axes !== "undefined") {
+				// 	// axes.position.set(controls.target);
+				// 	axes.position.setX( controls.target.x );
+				// 	axes.position.setY( controls.target.y );
+				// 	axes.position.setZ( controls.target.z );
+				// 	// axes.rotation.x = controls.targetS.phi;
+				// 	// axes.rotation.y = controls.targetS.theta;
+				// 	// axes.rotation.x = controls.targetS.phi;
+				// 	// axes.rotation.set( controls.targetS.theta );
+				// }
 
 			}
 

@@ -6,4 +6,5 @@ services:
     ports:
       - "2015:2015"
     volumes:
-      - "./src:/srv"
+      - "/c/Users/a003146/perso/oev-navigation/src:/srv"
+    # network_mode: host
