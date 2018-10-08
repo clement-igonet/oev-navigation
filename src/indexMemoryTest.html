@@ -135,6 +135,7 @@
 			earth = new THREE.Object3D();
 			scene.add(earth);
 			earthTiles = new THREE.EarthTiles(render);
+			earthTiles.tiles = ['http://localhost:2016/{z}/{x}/{y}.jpg'];
 			earth.add(earthTiles.getObject());
 			// earthTiles.update(tiles);
 
@@ -229,15 +230,15 @@
 			console.log('tiles:', tiles);
 			earthTiles.update(tiles);
 			var i = 0;
-			while (i<500) {
+			while (i<50000) {
 				(function (i) {
 					var limits;
 					var position;
 					setTimeout(function () {
 						limits = {
-							alt: {min: radius / 4, max: 4 * radius},
-							lon: {min:0, max: Math.PI/4},
-							lat: {min: Math.PI/8, max: Math.PI/4}
+							alt: {min: radius / 2, max: 4 * radius},
+							lon: {min:0, max: Math.PI},
+							lat: {min: - Math.PI/2, max: Math.PI/2}
 						}
 						position = {
 							alt: limits.alt.min + Math.random() * (limits.alt.max - limits.alt.min),

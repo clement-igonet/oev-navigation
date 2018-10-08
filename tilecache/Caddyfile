@@ -1,0 +1,10 @@
+0.0.0.0
+tls off
+proxy / https://tileserver.maptiler.com/nasa/
+cache {
+    match_path /assets
+    match_header Content-Type image/jpg image/png
+    status_header X-Cache-Status
+    default_max_age 15m
+    path /tmp/caddy-cache
+}

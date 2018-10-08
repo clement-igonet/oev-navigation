@@ -2,7 +2,7 @@
 THREE.EarthTiles = function (render) {
     this.earth = new THREE.Object3D();
     this.render = render;
-
+    this.tiles = ['https://tileserver.maptiler.com/nasa/{z}/{x}/{y}.jpg'];
     //
     // public methods
     //
@@ -31,7 +31,7 @@ THREE.EarthTiles = function (render) {
 
             ((tile) => {
                 var tileUrl = getUrl(
-                    ['https://tileserver.maptiler.com/nasa/{z}/{x}/{y}.jpg'],
+                    scope.tiles,
                     tile.z, tile.x, tile.y);
                 console.log('tileUrl:', tileUrl);
                 loader.load(tileUrl, function (texture) {
