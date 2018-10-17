@@ -1,7 +1,7 @@
 0.0.0.0
 tls off
 cors
-proxy / https://tileserver.maptiler.com/nasa/
+proxy / https://a.tile.openstreetmap.org/
 cache {
     match_path /assets
     match_header Content-Type image/jpg image/png

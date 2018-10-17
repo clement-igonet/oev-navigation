@@ -6,7 +6,7 @@ services:
     ports:
     - "2015:2015"
     volumes:
-    - "/c/Users/a003146/perso/oev-navigation/src:/srv"
+    - "/c/Users/a003146/perso/oev-navigation/oev/src:/srv"
     # network_mode: host
   tilecache:
     image: abiosoft/caddy:0.11.0-no-stats
@@ -15,8 +15,25 @@ services:
     volumes:
     - "/c/Users/a003146/perso/oev-navigation/tilecache/Caddyfile:/etc/Caddyfile"
     - "/c/Users/a003146/perso/oev-navigation/tilecache/tmp:/tmp/caddy-cache"
-    env_file: ./tilecache/.env
-    # environment:
-    # - http_proxy
-    # - https_proxy
-    # - no_proxy
+    environment:
+    - http_proxy
+    - https_proxy
+    - no_proxy
+  osm-cache:
+    image: abiosoft/caddy:0.11.0-no-stats
+    ports:
+    - "2018:2015"
+    volumes:
+    - "/c/Users/a003146/perso/oev-navigation/osm-cache/Caddyfile:/etc/Caddyfile"
+    - "/c/Users/a003146/perso/oev-navigation/osm-cache/tmp:/tmp/caddy-cache"
+    environment:
+    - http_proxy
+    - https_proxy
+    - no_proxy
+  # bigtile:
+  #   image: abiosoft/caddy:0.11.0-no-stats
+  #   ports:
+  #   - "2017:2015"
+  #   volumes:
+  #   - "/c/Users/a003146/perso/oev-navigation/bigtile/Caddyfile:/etc/Caddyfile"
+  #   - "/c/Users/a003146/perso/oev-navigation/bigtile/:/srv"
