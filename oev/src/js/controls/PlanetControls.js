@@ -515,10 +515,10 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// scope.cameraTheta.rotation.x = alpha;
 			// console.log('alpha:', alpha);
 
-			// cameraDelta.phi = 0;
 			// scope.cameraPhi.rotation.z = - (beta * Math.cos(alpha)) + (gamma * Math.sin(alpha));
 			// scope.cameraPhi.rotation.z = - (beta * Math.cos(alpha))
 			// scope.cameraPhi.rotation.y = gamma * Math.sin(alpha)
+			cameraDelta.phi = 0;
 			scope.cameraPhi.rotation.z = - gamma;
 			scope.object.rotation.x = alpha + Math.PI / 2;
 			// scope.cameraPhi.rotation.z = - beta;
