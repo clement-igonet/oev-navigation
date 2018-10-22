@@ -480,18 +480,40 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	// 	johnDelta.phi += (distance / (scope.johnRadius.position.x))
 	// 		* Math.sin(scope.cameraTheta.rotation.x);
 	// };
+
+	
+	// function handleScreenOrientation(device) {
+
+	// 	if (device) {
+	// 		// console.log('onDeviceOrientationChangeEvent');
+	// 		// console.log('device:', device);
+
+	// 		var alpha = device.alpha ? THREE.Math.degToRad(device.alpha) : 0; // Z
+	// 		var beta = device.beta ? THREE.Math.degToRad(device.beta) : 0; // X'
+	// 		var gamma = device.gamma ? THREE.Math.degToRad(device.gamma) : 0; // Y''
+	// 		var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0; // O
+	// 		cameraDelta.theta = 0;
+	// 		scope.cameraTheta.rotation.x = alpha;
+	// 		scope.update();
+	// 		scope.dispatchEvent(changeEvent);
+	// 	}
+	// }
+
 	function handleDeviceOrientation(device) {
 
-		if ( device ) {
+		if (device) {
 			// console.log('onDeviceOrientationChangeEvent');
 			// console.log('device:', device);
 
-			var alpha = device.alpha ? THREE.Math.degToRad( device.alpha ) : 0; // Z
-			var beta = device.beta ? THREE.Math.degToRad( device.beta ) : 0; // X'
-			var gamma = device.gamma ? THREE.Math.degToRad( device.gamma ) : 0; // Y''
-			var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
+			var alpha = device.alpha ? THREE.Math.degToRad(device.alpha) : 0; // Z
+			// var beta = device.beta ? THREE.Math.degToRad(device.beta) : 0; // X'
+			var gamma = device.gamma ? THREE.Math.degToRad(device.gamma) : 0; // Y''
+			// console.log('gamma:', gamma);
+			// var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0; // O
 			cameraDelta.theta = 0;
 			scope.cameraTheta.rotation.x = alpha;
+			cameraDelta.phi = 0;
+			scope.cameraPhi.rotation.z = gamma;
 			scope.update();
 			scope.dispatchEvent(changeEvent);
 		}
@@ -692,9 +714,32 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	}
 
-	function handleTouchMoveDollyPan(event) {
+	function handleTouchMovePan(event) {
 
-		//console.log( 'handleTouchMoveDollyPan' );
+		//console.log( 'handleTouchMovePan' );
+
+		if (scope.enablePan) {
+
+			var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
+			var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+
+			panEnd.set(x, y);
+
+			panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+
+			pan(panDelta.x, panDelta.y);
+
+			panStart.copy(panEnd);
+
+		}
+
+		scope.update();
+
+	}
+
+	function handleTouchMoveDolly(event) {
+
+		//console.log( 'handleTouchMoveDolly' );
 
 		if (scope.enableZoom) {
 
@@ -710,21 +755,6 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			dollyIn(dollyDelta.y);
 
 			dollyStart.copy(dollyEnd);
-
-		}
-
-		if (scope.enablePan) {
-
-			var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
-			var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
-
-			panEnd.set(x, y);
-
-			panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
-
-			pan(panDelta.x, panDelta.y);
-
-			panStart.copy(panEnd);
 
 		}
 
@@ -875,19 +905,27 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 		switch (event.touches.length) {
 
-			case 1:	// one-fingered touch: rotate
+			case 1:	// one-fingered touch: pan
 
-				if (scope.enableRotate === false) return;
+				if (scope.enablePan === false) return;
 
-				handleTouchStartRotate(event);
+				handleTouchStartDollyPan(event);
 
-				state = STATE.TOUCH_ROTATE;
+				state = STATE.TOUCH_DOLLY_PAN;
 
 				break;
 
-			case 2:	// two-fingered touch: dolly-pan
+			// if (scope.enableRotate === false) return;
 
-				if (scope.enableZoom === false && scope.enablePan === false) return;
+			// handleTouchStartRotate(event);
+
+			// state = STATE.TOUCH_ROTATE;
+
+			// break;
+
+			case 2:	// two-fingered touch: dolly
+
+				if (scope.enableZoom === false) return;
 
 				handleTouchStartDollyPan(event);
 
@@ -913,9 +951,9 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		handleDeviceOrientation(event);
 	};
 
-	function onScreenOrientationChangeEvent() {
-		handleScreenOrientation(window.orientation || 0);
-	};
+	// function onScreenOrientationChangeEvent() {
+	// 	handleScreenOrientation(window.orientation || 0);
+	// };
 	function onTouchMove(event) {
 
 		if (scope.enabled === false) return;
@@ -925,21 +963,27 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 		switch (event.touches.length) {
 
-			case 1: // one-fingered touch: rotate
+			case 1: // one-fingered touch: pan
 
-				if (scope.enableRotate === false) return;
-				if (state !== STATE.TOUCH_ROTATE) return; // is this needed?
-
-				handleTouchMoveRotate(event);
-
-				break;
-
-			case 2: // two-fingered touch: dolly-pan
-
-				if (scope.enableZoom === false && scope.enablePan === false) return;
+				if (scope.enablePan === false) return;
 				if (state !== STATE.TOUCH_DOLLY_PAN) return; // is this needed?
 
-				handleTouchMoveDollyPan(event);
+				handleTouchMovePan(event);
+
+				break;
+			// if (scope.enableRotate === false) return;
+			// if (state !== STATE.TOUCH_ROTATE) return; // is this needed?
+
+			// handleTouchMoveRotate(event);
+
+			// break;
+
+			case 2: // two-fingered touch: dolly
+
+				if (scope.enableZoom === false) return;
+				if (state !== STATE.TOUCH_DOLLY_PAN) return; // is this needed?
+
+				handleTouchMoveDolly(event);
 
 				break;
 
@@ -1022,8 +1066,8 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	scope.domElement.addEventListener('touchend', onTouchEnd, false);
 	scope.domElement.addEventListener('touchmove', onTouchMove, false);
 
-	window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
-	window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+	// window.addEventListener('orientationchange', onScreenOrientationChangeEvent, false);
+	window.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
 
 	window.addEventListener('keydown', onKeyDown, false);
 
