@@ -516,7 +516,9 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// console.log('alpha:', alpha);
 
 			cameraDelta.phi = 0;
-			scope.cameraPhi.rotation.z = -Math.max(gamma, beta);
+			scope.cameraPhi.rotation.z = -Math.max(beta, gamma);
+
+			object.rotation.x = gamma;
 			// console.log('gamma:', gamma);
 
 			scope.update();
