@@ -230,7 +230,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// console.log('this.cameraTheta.quaternion:', this.cameraTheta.quaternion);
 			// rotateUp
 			scope.cameraPhi.rotation.z += cameraDelta.phi;
-			// console.log('');
+			console.log('scope.cameraPhi.rotation.z:', scope.cameraPhi.rotation.z);
 
 			// altitude
 			scope.cameraRadius.position.setX(scope.cameraRadius.position.x * scale);
@@ -481,7 +481,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	// 		* Math.sin(scope.cameraTheta.rotation.x);
 	// };
 
-	
+
 	// function handleScreenOrientation(device) {
 
 	// 	if (device) {
@@ -505,15 +505,20 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// console.log('onDeviceOrientationChangeEvent');
 			// console.log('device:', device);
 
+			// console.log('orientation:', window.orientation);
+
 			var alpha = device.alpha ? THREE.Math.degToRad(device.alpha) : 0; // Z
-			// var beta = device.beta ? THREE.Math.degToRad(device.beta) : 0; // X'
-			var gamma = device.gamma ? THREE.Math.degToRad(device.gamma) : 0; // Y''
-			// console.log('gamma:', gamma);
-			// var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0; // O
+			var beta = device.beta ? THREE.Math.degToRad(device.beta) : 0; // X'
+			var gamma = device.gamma ? THREE.Math.degToRad(90 - device.gamma) : 0; // Y''
+			var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0; // O
 			cameraDelta.theta = 0;
 			scope.cameraTheta.rotation.x = alpha;
-			cameraDelta.phi = 0;
-			scope.cameraPhi.rotation.z = gamma;
+			// console.log('alpha:', alpha);
+
+			// cameraDelta.phi = 0;
+			scope.cameraPhi.rotation.z = -Math.max(gamma, beta);
+			// console.log('gamma:', gamma);
+
 			scope.update();
 			scope.dispatchEvent(changeEvent);
 		}
@@ -666,9 +671,24 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	}
 
-	function handleTouchStartDollyPan(event) {
+	function handleTouchStartPan(event) {
 
-		//console.log( 'handleTouchStartDollyPan' );
+		//console.log( 'handleTouchStartPan' );
+
+		if (scope.enablePan) {
+
+			var x = event.touches[0].pageX;
+			var y = event.touches[0].pageY;
+
+			panStart.set(x, y);
+
+		}
+
+	}
+
+	function handleTouchStartDolly(event) {
+
+		//console.log( 'handleTouchStartDolly' );
 
 		if (scope.enableZoom) {
 
@@ -678,15 +698,6 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			var distance = Math.sqrt(dx * dx + dy * dy);
 
 			dollyStart.set(0, distance);
-
-		}
-
-		if (scope.enablePan) {
-
-			var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
-			var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
-
-			panStart.set(x, y);
 
 		}
 
@@ -720,8 +731,8 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 		if (scope.enablePan) {
 
-			var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
-			var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+			var x = event.touches[0].pageX;
+			var y = event.touches[0].pageY;
 
 			panEnd.set(x, y);
 
@@ -909,7 +920,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 				if (scope.enablePan === false) return;
 
-				handleTouchStartDollyPan(event);
+				handleTouchStartPan(event);
 
 				state = STATE.TOUCH_DOLLY_PAN;
 
@@ -927,7 +938,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 				if (scope.enableZoom === false) return;
 
-				handleTouchStartDollyPan(event);
+				handleTouchStartDolly(event);
 
 				state = STATE.TOUCH_DOLLY_PAN;
 
