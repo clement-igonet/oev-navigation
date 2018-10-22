@@ -6,15 +6,15 @@ services:
     ports:
     - "2015:2015"
     volumes:
-    - "/c/Users/a003146/perso/oev-navigation/oev/src:/srv"
+    - "./oev/src:/srv"
     # network_mode: host
   tilecache:
     image: abiosoft/caddy:0.11.0-no-stats
     ports:
     - "2016:2015"
     volumes:
-    - "/c/Users/a003146/perso/oev-navigation/tilecache/Caddyfile:/etc/Caddyfile"
-    - "/c/Users/a003146/perso/oev-navigation/tilecache/tmp:/tmp/caddy-cache"
+    - "./tilecache/Caddyfile:/etc/Caddyfile"
+    - "./tilecache/tmp:/tmp/caddy-cache"
     environment:
     - http_proxy
     - https_proxy
@@ -24,8 +24,8 @@ services:
     ports:
     - "2018:2015"
     volumes:
-    - "/c/Users/a003146/perso/oev-navigation/osm-cache/Caddyfile:/etc/Caddyfile"
-    - "/c/Users/a003146/perso/oev-navigation/osm-cache/tmp:/tmp/caddy-cache"
+    - "./osm-cache/Caddyfile:/etc/Caddyfile"
+    - "./osm-cache/tmp:/tmp/caddy-cache"
     environment:
     - http_proxy
     - https_proxy
