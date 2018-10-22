@@ -121,7 +121,7 @@ THREE.EarthTiles = function (render) {
                         // console.log('url request: ', tileUrl);
 
                         loader.load(tileUrl, function (texture) {
-                            console.log('url gotten for: ', tileUrl);
+                            // console.log('url gotten for: ', tileUrl);
                             tileMesh.material.map = texture;
                             tileMesh.material.needsUpdate = true;
                             // console.log('tileMesh:', tileMesh);

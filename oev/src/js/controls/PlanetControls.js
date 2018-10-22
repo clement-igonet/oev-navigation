@@ -211,6 +211,8 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// console.log('scope.johnPhi.rotation.z:', scope.johnPhi.rotation.z);
 
 			// rotateLeft
+			// console.log('scope.cameraTheta.rotation.x:', scope.cameraTheta.rotation.x);
+
 			scope.cameraTheta.rotation.x -= cameraDelta.theta;
 
 			// console.log('scope.cameraSurvey.position:', scope.cameraSurvey.position);
@@ -478,14 +480,20 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	// 	johnDelta.phi += (distance / (scope.johnRadius.position.x))
 	// 		* Math.sin(scope.cameraTheta.rotation.x);
 	// };
-	function handleDeviceOrientation(event) {
-		if ( event ) {
-			var alpha = device.alpha ? THREE.Math.degToRad( device.alpha ) + scope.alphaOffset : 0; // Z
+	function handleDeviceOrientation(device) {
+
+		if ( device ) {
+			// console.log('onDeviceOrientationChangeEvent');
+			// console.log('device:', device);
+
+			var alpha = device.alpha ? THREE.Math.degToRad( device.alpha ) : 0; // Z
 			var beta = device.beta ? THREE.Math.degToRad( device.beta ) : 0; // X'
 			var gamma = device.gamma ? THREE.Math.degToRad( device.gamma ) : 0; // Y''
 			var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
+			cameraDelta.theta = 0;
 			scope.cameraTheta.rotation.x = alpha;
 			scope.update();
+			scope.dispatchEvent(changeEvent);
 		}
 	}
 
@@ -1014,8 +1022,8 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	scope.domElement.addEventListener('touchend', onTouchEnd, false);
 	scope.domElement.addEventListener('touchmove', onTouchMove, false);
 
-	scope.domElement.addEventListener('orientationchange', onScreenOrientationChangeEvent, false);
-	scope.domElement.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
+	window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
+	window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
 
 	window.addEventListener('keydown', onKeyDown, false);
 
