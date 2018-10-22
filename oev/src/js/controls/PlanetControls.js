@@ -117,14 +117,14 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	// public methods
 	//
 
-	this.getPosition = function() {
+	this.getPosition = function () {
 		return {
 			alt: scope.cameraRadius.position.x,
 			lon: scope.johnTheta.rotation.y,
 			lat: scope.johnPhi.rotation.z,
 			theta: scope.cameraTheta.rotation.x,
 			phi: -scope.cameraPhi.rotation.z
-			
+
 		}
 	}
 
@@ -472,6 +472,22 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		panStart.set(event.clientX, event.clientY);
 
 	}
+	// var panLeft = function (distance) {
+	// 	johnDelta.theta += (distance / (scope.johnRadius.position.x))
+	// 		* Math.cos(scope.cameraTheta.rotation.x) / Math.max(0.1, Math.cos(scope.johnPhi.rotation.z));
+	// 	johnDelta.phi += (distance / (scope.johnRadius.position.x))
+	// 		* Math.sin(scope.cameraTheta.rotation.x);
+	// };
+	function handleDeviceOrientation(event) {
+		if ( event ) {
+			var alpha = device.alpha ? THREE.Math.degToRad( device.alpha ) + scope.alphaOffset : 0; // Z
+			var beta = device.beta ? THREE.Math.degToRad( device.beta ) : 0; // X'
+			var gamma = device.gamma ? THREE.Math.degToRad( device.gamma ) : 0; // Y''
+			var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
+			scope.cameraTheta.rotation.x = alpha;
+			scope.update();
+		}
+	}
 
 	function handleMouseMoveRotate(event) {
 
@@ -559,7 +575,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// panDelta.subVectors(panStart, panEnd).multiplyScalar(scope.panSpeed);
 
 			// pan(panDelta.x, panDelta.y);
-	
+
 			// panStart.copy(panEnd);
 			dollyOut(getZoomScale());
 
@@ -567,7 +583,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
 
 			// pan(panDelta.x, panDelta.y);
-	
+
 			// panStart.copy(panEnd);
 			dollyIn(getZoomScale());
 
@@ -885,6 +901,13 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	}
 
+	function onDeviceOrientationChangeEvent(event) {
+		handleDeviceOrientation(event);
+	};
+
+	function onScreenOrientationChangeEvent() {
+		handleScreenOrientation(window.orientation || 0);
+	};
 	function onTouchMove(event) {
 
 		if (scope.enabled === false) return;
@@ -931,6 +954,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		state = STATE.NONE;
 
 	}
+
 
 	function onContextMenu(event) {
 
@@ -989,6 +1013,9 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	scope.domElement.addEventListener('touchstart', onTouchStart, false);
 	scope.domElement.addEventListener('touchend', onTouchEnd, false);
 	scope.domElement.addEventListener('touchmove', onTouchMove, false);
+
+	scope.domElement.addEventListener('orientationchange', onScreenOrientationChangeEvent, false);
+	scope.domElement.addEventListener('deviceorientation', onDeviceOrientationChangeEvent, false);
 
 	window.addEventListener('keydown', onKeyDown, false);
 
