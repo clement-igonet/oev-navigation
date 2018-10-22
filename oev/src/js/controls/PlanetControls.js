@@ -511,15 +511,15 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			var beta = device.beta ? THREE.Math.degToRad(device.beta) : 0; // X'
 			var gamma = device.gamma ? THREE.Math.degToRad(device.gamma) : 0; // Y''
 			var orient = scope.screenOrientation ? THREE.Math.degToRad(scope.screenOrientation) : 0; // O
-			cameraDelta.theta = 0;
-			scope.cameraTheta.rotation.x = alpha;
+			// cameraDelta.theta = 0;
+			// scope.cameraTheta.rotation.x = alpha;
 			// console.log('alpha:', alpha);
 
 			// cameraDelta.phi = 0;
 			// scope.cameraPhi.rotation.z = - (beta * Math.cos(alpha)) + (gamma * Math.sin(alpha));
 			// scope.cameraPhi.rotation.z = - (beta * Math.cos(alpha))
 			// scope.cameraPhi.rotation.y = gamma * Math.sin(alpha)
-			scope.object.rotation.x = alpha / 2;
+			scope.object.rotation.x = alpha;
 			// scope.cameraPhi.rotation.z = - beta;
 
 
