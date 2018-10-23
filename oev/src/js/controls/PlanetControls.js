@@ -309,7 +309,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	var startEvent = { type: 'start' };
 	var endEvent = { type: 'end' };
 
-	var STATE = { NONE: - 1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY_PAN: 4 };
+	var STATE = { NONE: - 1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_DOLLY_ROTATE: 3, TOUCH_PAN: 4 };
 
 	var state = STATE.NONE;
 
@@ -719,28 +719,6 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	}
 
-	function handleTouchMoveRotate(event) {
-
-		//console.log( 'handleTouchMoveRotate' );
-
-		rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
-
-		rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
-
-		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-
-		// rotating across whole screen goes 360 degrees around
-		rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth);
-
-		// rotating up and down along whole screen attempts to go 360, but limited to 180
-		rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
-
-		rotateStart.copy(rotateEnd);
-
-		scope.update();
-
-	}
-
 	function handleTouchMovePan(event) {
 
 		//console.log( 'handleTouchMovePan' );
@@ -763,11 +741,45 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		scope.update();
 
 	}
+	function handleTouchMoveRotate( event ) {
 
-	function handleTouchMoveDolly(event) {
+		//console.log( 'handleTouchMoveRotate' );
 
-		//console.log( 'handleTouchMoveDolly' );
+		rotateEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
 
+		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+
+		rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+
+		rotateStart.copy( rotateEnd );
+
+		scope.update();
+
+	}
+
+	function handleTouchMoveDollyRotate(event) {
+
+		//console.log( 'handleTouchMoveRotate' );
+		if (scope.enableRotate) {
+
+			rotateEnd.set( event.touches[ 1 ].pageX, event.touches[ 1 ].pageY );
+
+			rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+	
+			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+	
+			rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+	
+			rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+	
+			rotateStart.copy( rotateEnd );
+	
+			scope.update();
+		}
 		if (scope.enableZoom) {
 
 			var dx = event.touches[0].pageX - event.touches[1].pageX;
@@ -784,10 +796,32 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			dollyStart.copy(dollyEnd);
 
 		}
-
-		scope.update();
-
 	}
+
+	// function handleTouchMoveDollyRotate(event) {
+
+	// 	//console.log( 'handleTouchMoveDolly' );
+
+	// 	if (scope.enableZoom) {
+
+	// 		var dx = event.touches[0].pageX - event.touches[1].pageX;
+	// 		var dy = event.touches[0].pageY - event.touches[1].pageY;
+
+	// 		var distance = Math.sqrt(dx * dx + dy * dy);
+
+	// 		dollyEnd.set(0, distance);
+
+	// 		dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+
+	// 		dollyIn(dollyDelta.y);
+
+	// 		dollyStart.copy(dollyEnd);
+
+	// 	}
+
+	// 	scope.update();
+
+	// }
 
 	function handleTouchEnd(event) {
 
@@ -938,7 +972,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 				handleTouchStartPan(event);
 
-				state = STATE.TOUCH_DOLLY_PAN;
+				state = STATE.TOUCH_PAN;
 
 				break;
 
@@ -956,7 +990,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 				handleTouchStartDolly(event);
 
-				state = STATE.TOUCH_DOLLY_PAN;
+				state = STATE.TOUCH_DOLLY_ROTATE;
 
 				break;
 
@@ -993,7 +1027,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			case 1: // one-fingered touch: pan
 
 				if (scope.enablePan === false) return;
-				if (state !== STATE.TOUCH_DOLLY_PAN) return; // is this needed?
+				if (state !== STATE.TOUCH_PAN) return; // is this needed?
 
 				handleTouchMovePan(event);
 
@@ -1008,9 +1042,9 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			case 2: // two-fingered touch: dolly
 
 				if (scope.enableZoom === false) return;
-				if (state !== STATE.TOUCH_DOLLY_PAN) return; // is this needed?
+				if (state !== STATE.TOUCH_DOLLY_ROTATE) return; // is this needed?
 
-				handleTouchMoveDolly(event);
+				handleTouchMoveDollyRotate(event);
 
 				break;
 
