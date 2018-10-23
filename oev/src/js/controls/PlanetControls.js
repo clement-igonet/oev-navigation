@@ -741,21 +741,21 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		scope.update();
 
 	}
-	function handleTouchMoveRotate( event ) {
+	function handleTouchMoveRotate(event) {
 
 		//console.log( 'handleTouchMoveRotate' );
 
-		rotateEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+		rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
 
-		rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
+		rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
 
 		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
-		rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
+		rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
 
-		rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
+		rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
 
-		rotateStart.copy( rotateEnd );
+		rotateStart.copy(rotateEnd);
 
 		scope.update();
 
@@ -766,18 +766,19 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		//console.log( 'handleTouchMoveRotate' );
 		if (scope.enableRotate) {
 
-			rotateEnd.set( event.touches[ 1 ].pageX, event.touches[ 1 ].pageY );
-
-			rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( scope.rotateSpeed );
-	
 			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-	
-			rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientHeight ); // yes, height
-	
-			rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight );
-	
-			rotateStart.copy( rotateEnd );
-	
+
+			rotateEnd.set(event.touches[1].pageX - element.clientWidth / 2, event.touches[1].pageY - element.clientHeight / 2);
+
+			rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+
+
+			rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+
+			rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+
+			rotateStart.copy(rotateEnd);
+
 			scope.update();
 		}
 		if (scope.enableZoom) {
