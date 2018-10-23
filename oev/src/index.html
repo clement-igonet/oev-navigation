@@ -1,210 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - orbit controls</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				color: #000;
-				font-family:Monospace;
-				font-size:13px;
-				text-align:center;
-				font-weight: bold;
 
-				background-color: #fff;
-				margin: 0px;
-				overflow: hidden;
-			}
+<head>
+	<title>three.js webgl - orbit controls</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			color: #000;
+			font-family: Monospace;
+			font-size: 13px;
+			text-align: center;
+			font-weight: bold;
 
-			#info {
-				color:#000;
-				position: absolute;
-				top: 0px; width: 100%;
-				padding: 5px;
+			background-color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
 
-			}
+		#info {
+			color: #000;
+			position: absolute;
+			top: 0px;
+			width: 100%;
+			padding: 5px;
 
-			a {
-				color: red;
-			}
-		</style>
-	</head>
+		}
 
-	<body>
-		<div id="info">
-			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - orbit controls example
-		</div>
+		a {
+			color: red;
+		}
+	</style>
+</head>
 
-		<script src="http://threejs.org/build/three.min.js"></script>
-		<script src="js/controls/PlanetControls.js"></script>
-		<script src="js/mesh/EarthTiles.js"></script>
+<body>
+	<div id="info">
+		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - orbit controls example
+	</div>
+	<script src="http://chaijs.com/chai.js" type="text/javascript"></script>
+	<script src="http://threejs.org/build/three.min.js"></script>
+	<!-- <script src="build/three.min.js"></script> -->
+	<script src="js/Toolbox.js"></script>
+	<script src="js/controls/PlanetControls.js"></script>
+	<script src="js/mesh/EarthTiles.js"></script>
+	<script src="js/tiler/BasicTiler.js"></script>
 
-		<!-- <script src="js/Detector.js"></script> -->
+	<!-- <script src="js/Detector.js"></script> -->
 
-		<script>
+	<script>
 
-			// if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+		// if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-			var radius = 6371;
-			var camera, controls, scene, renderer, cameraSurvey;
-			var R = 6400;
+		var radius = 6371 * 1000;
+		var tiler;
+		var camera, controls, scene, renderer, cameraSurvey;
+		let timer;
+
+		// var R = 6400;
 
 
-			// var tiles = [
-			// 	{z: 1, x: 0, y: 0},
-			// 	{z: 1, x: 1, y: 0},
-			// 	{z: 1, x: 0, y: 1},
-			// 	{z: 1, x: 1, y: 1}
+		// var tiles = [
+		// 	{z: 1, x: 0, y: 0},
+		// 	{z: 1, x: 1, y: 0},
+		// 	{z: 1, x: 0, y: 1},
+		// 	{z: 1, x: 1, y: 1}
+		// ];
+		// var tiles = [];
+		// var tiles = [
+		// 	{ z: 2, x: 0, y: 0 },
+		// 	{ z: 2, x: 1, y: 0 },
+		// 	{ z: 2, x: 2, y: 0 },
+		// 	{ z: 2, x: 3, y: 0 },
+		// 	{ z: 2, x: 0, y: 1 },
+		// 	{ z: 2, x: 1, y: 1 },
+		// 	{ z: 2, x: 2, y: 1 },
+		// 	{ z: 2, x: 3, y: 1 },
+		// 	{ z: 2, x: 0, y: 2 },
+		// 	{ z: 2, x: 1, y: 2 },
+		// 	{ z: 2, x: 2, y: 2 },
+		// 	{ z: 2, x: 3, y: 2 },
+		// 	{ z: 2, x: 0, y: 3 },
+		// 	{ z: 2, x: 1, y: 3 },
+		// 	{ z: 2, x: 2, y: 3 },
+		// 	{ z: 2, x: 3, y: 3 }
+		// ];
+		test();
+		init();
+		render(); // remove when using next line for animation loop (requestAnimationFrame)
+		move();
+
+		//animate();
+
+		function test() {
+			THREE.Toolbox.test();
+			THREE.BasicTiler.test();
+		}
+		function init() {
+			// THREE.Cache.enabled = false;
+			tiler = new THREE.BasicTiler();
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xcccccc);
+			scene.fog = new THREE.FogExp2(0xcccccc, 0.1 / radius);
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			document.body.appendChild(renderer.domElement);
+
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, radius * 20);
+			cameraSurvey = new THREE.Object3D();
+
+			// camera.position.setFromSpherical(THREE.Spherical(radius * 5, 0, 0));
+			// camera.quaternion.y = Math.PI/4;
+			// camera.quaternion.z = Math.PI/4;
+			// camera.position.setFromSpherical(THREE.Spherical(radius * 1.8, 0, 0));
+			console.log('camera.position:', camera.position);
+
+			scene.add(cameraSurvey);
+
+			// controls
+			controls = new THREE.PlanetControls(
+				camera,
+				renderer.domElement,
+				cameraSurvey,
+				() => {
+					// earthTiles.update(THREE.BasicTiler.getTiles(controls.getPosition()));
+					// delayUpdateScene();
+					earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
+
+				}
+			);
+			// earthTiles.update(tiles);
+
+			// controls = new THREE.OrbitControls( camera, renderer.domElement, target );
+			// controls.maxPolarAngle = 24 * Math.PI / 48; // radians
+			controls.addEventListener('change', render);
+
+			controls.minDistance = 1;
+			controls.maxDistance = radius * 4;
+
+			controls.maxPolarAngle = Math.PI / 2;
+
+			// // Longitude
+			// controls.minLongitudePlanet = 0; // radians
+			// controls.maxLongitudePlanet = Math.PI; // radians
+			// // Latitude
+			// controls.minLatitudePlanet = - Math.PI/2; // radians
+			// controls.maxLatitudePlanet = + Math.PI/2; // radians
+
+			// world
+
+			earth = new THREE.Object3D();
+			scene.add(earth);
+			earthTiles = new THREE.EarthTiles(render);
+
+			earthTiles.tiles = [
+				"https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+				"https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+				"https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+				"https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+			];
+			// earthTiles.tiles = [
+			// 	'http://localhost:2018/{z}/{x}/{y}.png',
 			// ];
-			var tiles = [
-				{z: 2, x: 0, y: 0},
-				{z: 2, x: 1, y: 0},
-				{z: 2, x: 2, y: 0},
-				{z: 2, x: 3, y: 0},
-				{z: 2, x: 0, y: 1},
-				{z: 2, x: 1, y: 1},
-				{z: 2, x: 2, y: 1},
-				{z: 2, x: 3, y: 1},
-				{z: 2, x: 0, y: 2},
-				{z: 2, x: 1, y: 2},
-				{z: 2, x: 2, y: 2},
-				{z: 2, x: 3, y: 2},
-				{z: 2, x: 0, y: 3},
-				{z: 2, x: 1, y: 3},
-				{z: 2, x: 2, y: 3},
-				{z: 2, x: 3, y: 3}
-		];
-			init();
-			render(); // remove when using next line for animation loop (requestAnimationFrame)
-			//animate();
-
-			function init() {
-
-				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0xcccccc );
-				scene.fog = new THREE.FogExp2( 0xcccccc, 0.00002 );
-
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
-
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100000 );
-				cameraSurvey = new THREE.Object3D();
-
-				// camera.position.setFromSpherical(THREE.Spherical(radius * 5, 0, 0));
-				// camera.quaternion.y = Math.PI/4;
-				// camera.quaternion.z = Math.PI/4;
-				// camera.position.setFromSpherical(THREE.Spherical(radius * 1.8, 0, 0));
-				console.log('camera.position:', camera.position);
-
-				scene.add( cameraSurvey );
-
-				// controls
-				controls = new THREE.PlanetControls( camera, renderer.domElement, cameraSurvey );
-				// controls = new THREE.OrbitControls( camera, renderer.domElement, target );
-				controls.maxPolarAngle = 24 * Math.PI / 48; // radians
-				controls.addEventListener( 'change', render );
-
-				controls.minDistance = 100;
-				controls.maxDistance = radius * 4;
-
-				controls.maxPolarAngle = Math.PI / 2;
-
-				// world
-
-				earth = new THREE.Object3D();
-				earthTiles = new THREE.EarthTiles(render);
-				earth.add(earthTiles.getObject());
-				scene.add( earth );
-				earthTiles.update(tiles);
+			// earthTiles.tiles = [
+			// 	'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			// 	'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			// 	'http://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			// ];
+			// http://localhost:2018/12/2075/1411.png
+			// earthTiles.tiles = ['http://localhost:2017/S0-modele--renault-kadjar.jpg'];
+			earth.add(earthTiles.getObject());
+			// let tile = 
+			// earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
 
 
-				// textureLoader = new THREE.TextureLoader();
+			// textureLoader = new THREE.TextureLoader();
 
-				// textureLoader.load(
-				// 	'textures/planets/earth_atmos_4096.jpg',
-				// 	function( tex ) {
-				// 		var geometry = new THREE.SphereBufferGeometry( radius, 100, 50 );
-				// 		var material = new THREE.MeshPhongMaterial( {
-				// 			map: tex,
-				// 			color: 0xffffff,
-				// 			shininess: 200,
-				// 			needsUpdate: true
-				// 		} );
-				// 		var mesh = new THREE.Mesh( geometry, material );
-				// 		mesh.position.set( 0, 0, 0 );
-				// 		scene.add( mesh );
-				// 		render();
-				// 	}
-				// );
+			// textureLoader.load(
+			// 	'textures/planets/earth_atmos_4096.jpg',
+			// 	function( tex ) {
+			// 		var geometry = new THREE.SphereBufferGeometry( radius, 100, 50 );
+			// 		var material = new THREE.MeshPhongMaterial( {
+			// 			map: tex,
+			// 			color: 0xffffff,
+			// 			shininess: 200,
+			// 			needsUpdate: true
+			// 		} );
+			// 		var mesh = new THREE.Mesh( geometry, material );
+			// 		mesh.position.set( 0, 0, 0 );
+			// 		scene.add( mesh );
+			// 		render();
+			// 	}
+			// );
 
-				// // target axes
-				// var axesCenter = new THREE.AxesHelper(2000);
-				// axesCenter.position.set( 0, 0, 0 );
-				// scene.add(axesCenter);
+			// // target axes
+			// var axesCenter = new THREE.AxesHelper(2000);
+			// axesCenter.position.set( 0, 0, 0 );
+			// scene.add(axesCenter);
 
-				// // target axes
-				// axes = new THREE.AxesHelper(2000);
-				// axes.position.set( 0, 0, 0 );
-				// scene.add(axes);
+			// // target axes
+			// axes = new THREE.AxesHelper(2000);
+			// axes.position.set( 0, 0, 0 );
+			// scene.add(axes);
 
-				// lights
+			// lights
 
-				var light = new THREE.DirectionalLight( 0xffffff );
-				light.position.set( 1, 1, 1 );
-				scene.add( light );
+			var light = new THREE.DirectionalLight(0xffffff);
+			light.position.set(1, 1, 1);
+			scene.add(light);
 
-				var light = new THREE.DirectionalLight( 0x002288 );
-				light.position.set( -1, -1, -1 );
-				scene.add( light );
+			var light = new THREE.DirectionalLight(0x002288);
+			light.position.set(-1, -1, -1);
+			scene.add(light);
 
-				var light = new THREE.AmbientLight( 0x222222 );
-				scene.add( light );
+			var light = new THREE.AmbientLight(0x222222);
+			scene.add(light);
 
-				window.addEventListener( 'resize', onWindowResize, false );
+			window.addEventListener('resize', onWindowResize, false);
 
-			}
+		}
 
-			function onWindowResize() {
+		function move() {
+			var z, x, y;
+			// var position = {
+			// 	altitude: radius * 4,
+			// 	lon: 0,
+			// 	lat: Math.PI / 4,
+			// 	theta: 0,
+			// 	phi: Math.PI / 4
+			// };
+			// var position = {
+			// 	alt: radius * 4,
+			// 	lon: Math.PI/32,
+			// 	lat: Math.PI/32,
+			// 	theta: 0,
+			// 	phi: 0
+			// };
+			// var position = {
+			// 	alt: 12597.488437942575,
+			// 	lon: 0.01600890043963752,
+			// 	lat: 0.6790204737589939,
+			// 	theta: 0,
+			// 	phi: 0
+			// };
+			// };
+			// let position = {
+			// 	alt: radius,
+			// 	lon: 0.6863364576566329,
+			// 	lat: 0.32783806761943424,
+			// 	theta: 0,
+			// 	phi: 0
+			// };
+			var position = {
+				alt: 100 * 1000,
+				lon: 2.4 * Math.PI / 180,
+				lat: 48.9 * Math.PI / 180,
+				theta: 0,
+				phi: 0
+			};
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+			// console.log('position:', position.alt, position.lon * 180 / Math.PI, position.lat * 180 / Math.PI);
+			controls.move(position);
+			let tile = THREE.BasicTiler.getTile(position);
+			// tiles = [{
+			//         z: 3,
+			//         x: 4,
+			//         y: 2
+			// }];
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+			console.log('tile:', tile);
+			earthTiles.update(tile);
+			// controls.move(position);
+			// http://localhost:2015/indexMemoryTest.html
+			// var i = 0;
+			// while (i < 120) {
+			// 	(function (i) {
+			// 		let limits;
+			// 		let position;
+			// 		let tile;
+			// 		setTimeout(function () {
+			// 			limits = {
+			// 				alt: { min: 1, max: radius },
+			// 				lon: { min: 0 * Math.PI / 180, max: 5 * Math.PI / 180 },
+			// 				lat: { min: 46 * Math.PI / 180, max: 50 * Math.PI / 180 }
+			// 			}
+			// 			position = {
+			// 				alt: limits.alt.min + Math.random() * (limits.alt.max - limits.alt.min),
+			// 				lon: limits.lon.min + Math.random() * (limits.lon.max - limits.lon.min),
+			// 				lat: limits.lat.min + Math.random() * (limits.lat.max - limits.lat.min),
+			// 				theta: 0,
+			// 				phi: 0
+			// 			};
+			// 			// console.log('position:', position);
+			// 			tile = THREE.BasicTiler.getTile(position);
+			// 			controls.move(position);
 
-			}
+			// 			// console.log('tiles:', tiles);
+			// 			// console.log('i:', i);
+			// 			// console.log('coucou');
+			// 			earthTiles.update(tile);
+			// 			// earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
 
-			function animate() {
+			// 			// console.log('THREE.Cache.files:', THREE.Cache.files);
+			// 		}, 1500 * (i + 1));
+			// 	})(i++)
+			// }
 
-				requestAnimationFrame( animate );
 
-				controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+		}
 
-				render();
+		// function onWindowResize() {
+		// 	console.log('Window resize');
+		// 	camera.aspect = window.innerWidth / window.innerHeight;
+		// 	camera.updateProjectionMatrix();
 
-			}
+		// 	renderer.setSize(window.innerWidth, window.innerHeight);
 
-			function render() {
+		// }
+		let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
+		let windowHeight = window.innerHeight;
+		function onWindowResize(event) {
+			// 	console.log('Window resize');
 
-				// renderer.render( scene, camera );
-				renderer.render( scene, camera );
+			camera.aspect = window.innerWidth / window.innerHeight;
 
-				// if (typeof axes !== "undefined") {
-				// 	// axes.position.set(controls.target);
-				// 	axes.position.setX( controls.target.x );
-				// 	axes.position.setY( controls.target.y );
-				// 	axes.position.setZ( controls.target.z );
-				// 	// axes.rotation.x = controls.targetS.phi;
-				// 	// axes.rotation.y = controls.targetS.theta;
-				// 	// axes.rotation.x = controls.targetS.phi;
-				// 	// axes.rotation.set( controls.targetS.theta );
-				// }
+			// adjust the FOV
+			camera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
 
-			}
+			camera.updateProjectionMatrix();
+			// camera.lookAt(scene.position);
 
-		</script>
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.render(scene, camera);
 
-	</body>
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+
+			controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+			render();
+
+		}
+
+		function render() {
+
+			// renderer.render( scene, camera );
+			renderer.render(scene, camera);
+			// delayUpdateScene();
+
+			// if (typeof axes !== "undefined") {
+			// 	// axes.position.set(controls.target);
+			// 	axes.position.setX( controls.target.x );
+			// 	axes.position.setY( controls.target.y );
+			// 	axes.position.setZ( controls.target.z );
+			// 	// axes.rotation.x = controls.targetS.phi;
+			// 	// axes.rotation.y = controls.targetS.theta;
+			// 	// axes.rotation.x = controls.targetS.phi;
+			// 	// axes.rotation.set( controls.targetS.theta );
+			// }
+
+		}
+
+	</script>
+
+</body>
+
 </html>
