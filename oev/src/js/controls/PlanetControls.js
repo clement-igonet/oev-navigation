@@ -419,7 +419,6 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	function dollyIn(dollyScale) {
 
 		if (scope.object.isPerspectiveCamera) {
-
 			scale /= dollyScale;
 			delayUpdateScene();
 			zoomChanged = true;
@@ -702,10 +701,24 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	// }
 
+
+	var mylatesttap;
 	function handleTouchStartPan(event) {
 
-		//console.log( 'handleTouchStartPan' );
+		let now = new Date().getTime();
 
+		let timesince = now - mylatesttap;
+		if ((timesince < 600) && (timesince > 0)) {
+
+			// double tap   
+			console.log('double tap');
+
+			dollyOut(0.5);
+			scope.update();
+			mylatesttap = 0;
+		} else {
+			mylatesttap = new Date().getTime();
+		}
 		if (scope.enablePan) {
 
 			var x = event.touches[0].pageX;

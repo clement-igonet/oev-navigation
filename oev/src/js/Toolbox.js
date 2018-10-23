@@ -23,7 +23,7 @@ THREE.Toolbox = {
 
         );
         mesh.name = THREE.Toolbox.getTileId(tile);
-        console.log(mesh.name);
+        // console.log(mesh.name);
         return mesh;
     },
     long2tile: function (lon, zoom) {
