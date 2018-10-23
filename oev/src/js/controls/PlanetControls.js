@@ -230,7 +230,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// console.log('this.cameraTheta.quaternion:', this.cameraTheta.quaternion);
 			// rotateUp
 			scope.cameraPhi.rotation.z += cameraDelta.phi;
-			console.log('scope.cameraPhi.rotation.z:', scope.cameraPhi.rotation.z);
+			// console.log('scope.cameraPhi.rotation.z:', scope.cameraPhi.rotation.z);
 
 			// altitude
 			scope.cameraRadius.position.setX(scope.cameraRadius.position.x * scale);
@@ -332,6 +332,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	var panDelta = new THREE.Vector2();
 
 	var dollyStart = new THREE.Vector2();
+	// var rotateStart = new THREE.Vector2();
 	var dollyEnd = new THREE.Vector2();
 	var dollyDelta = new THREE.Vector2();
 
@@ -702,10 +703,17 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	}
 
-	function handleTouchStartDolly(event) {
+	function handleTouchStartDollyRotate(event) {
 
 		//console.log( 'handleTouchStartDolly' );
 
+		if (scope.enableRotate) {
+
+			// rotateStart.set( event.touches[ 1 ].pageX, 0 );
+			rotateStart.set(event.touches[1].pageX, event.touches[1].pageY);
+
+			console.log('rotateStart:', rotateStart);
+		}
 		if (scope.enableZoom) {
 
 			var dx = event.touches[0].pageX - event.touches[1].pageX;
@@ -741,37 +749,36 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		scope.update();
 
 	}
-	function handleTouchMoveRotate(event) {
+	// function handleTouchMoveRotate(event) {
 
-		//console.log( 'handleTouchMoveRotate' );
+	// 	//console.log( 'handleTouchMoveRotate' );
 
-		rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
+	// 	rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
 
-		rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+	// 	rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
 
-		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+	// 	var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
-		rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+	// 	rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
 
-		rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+	// 	rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
 
-		rotateStart.copy(rotateEnd);
+	// 	rotateStart.copy(rotateEnd);
 
-		scope.update();
+	// 	scope.update();
 
-	}
+	// }
 
 	function handleTouchMoveDollyRotate(event) {
 
 		//console.log( 'handleTouchMoveRotate' );
 		if (scope.enableRotate) {
 
-			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-
-			rotateEnd.set(event.touches[1].pageX - element.clientWidth / 2, event.touches[1].pageY - element.clientHeight / 2);
+			rotateEnd.set(event.touches[1].pageX, event.touches[1].pageY);
 
 			rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
 
+			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
 			rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
 
@@ -989,7 +996,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 				if (scope.enableZoom === false) return;
 
-				handleTouchStartDolly(event);
+				handleTouchStartDollyRotate(event);
 
 				state = STATE.TOUCH_DOLLY_ROTATE;
 
