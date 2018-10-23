@@ -728,7 +728,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// rotateStart.set( event.touches[ 1 ].pageX, 0 );
 			touchXWay = ((event.touches[1].pageY - event.touches[0].pageY) < 0) ? 1 : -1;
 			touchYWay = ((event.touches[1].pageX - event.touches[0].pageX) < 0) ? -1 : 1;
-			touchYWay = 0;
+			touchXWay = 0;
 
 			rotateStart.set(
 				(touchXWay * (event.touches[0].pageX - event.touches[1].pageX) + touchYWay * (event.touches[0].pageY - event.touches[1].pageY)) / 2,
