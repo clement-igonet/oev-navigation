@@ -336,6 +336,18 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 	var dollyEnd = new THREE.Vector2();
 	var dollyDelta = new THREE.Vector2();
 
+	var timer;
+	function delayUpdateScene() {
+		// console.log('Reset timer.');
+		console.log('delay');
+		clearTimeout(timer);
+		timer = setTimeout(function () {
+			// console.log('Render after delay.');
+			console.log('update');
+			earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
+		}, 500);
+	}
+
 	function getAutoRotationAngle() {
 
 		return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
@@ -394,7 +406,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 			// we use only clientHeight here so aspect ratio does not distort speed
 			panLeft(2 * deltaX * targetDistance / element.clientHeight);
 			panUp(2 * deltaY * targetDistance / element.clientHeight);
-
+			delayUpdateScene();
 		} else {
 
 			// camera neither orthographic nor perspective
@@ -409,6 +421,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		if (scope.object.isPerspectiveCamera) {
 
 			scale /= dollyScale;
+			delayUpdateScene();
 			zoomChanged = true;
 
 		} else if (scope.object.isOrthographicCamera) {
@@ -431,6 +444,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		if (scope.object.isPerspectiveCamera) {
 
 			scale *= dollyScale;
+			delayUpdateScene();
 			zoomChanged = true;
 
 		} else if (scope.object.isOrthographicCamera) {
@@ -1084,6 +1098,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		event.preventDefault();
 
 	}
+
 
 	// function originAxes( radius, height, mask ) {
 	// 	// static originAxes() {

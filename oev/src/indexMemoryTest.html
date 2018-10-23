@@ -54,6 +54,8 @@
 		var radius = 6371 * 1000;
 		var tiler;
 		var camera, controls, scene, renderer, cameraSurvey;
+		let timer;
+
 		// var R = 6400;
 
 
@@ -123,7 +125,9 @@
 				cameraSurvey,
 				() => {
 					// earthTiles.update(THREE.BasicTiler.getTiles(controls.getPosition()));
+					// delayUpdateScene();
 					earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
+
 				}
 			);
 			// earthTiles.update(tiles);
@@ -302,7 +306,10 @@
 			// 		}, 1500 * (i + 1));
 			// 	})(i++)
 			// }
+
+
 		}
+
 		// function onWindowResize() {
 		// 	console.log('Window resize');
 		// 	camera.aspect = window.innerWidth / window.innerHeight;
@@ -311,8 +318,8 @@
 		// 	renderer.setSize(window.innerWidth, window.innerHeight);
 
 		// }
-		var tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
-		var windowHeight = window.innerHeight;
+		let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
+		let windowHeight = window.innerHeight;
 		function onWindowResize(event) {
 			// 	console.log('Window resize');
 
@@ -343,6 +350,7 @@
 
 			// renderer.render( scene, camera );
 			renderer.render(scene, camera);
+			// delayUpdateScene();
 
 			// if (typeof axes !== "undefined") {
 			// 	// axes.position.set(controls.target);
