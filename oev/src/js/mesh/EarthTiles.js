@@ -1,5 +1,10 @@
 
 THREE.EarthTiles = function (render) {
+    this.currentTile = {
+        z: 0,
+        x: 0,
+        y: 0
+    }
     this.earth = new THREE.Object3D();
     this.render = render;
     this.tiles = ['https://tileserver.maptiler.com/nasa/{z}/{x}/{y}.jpg'];
@@ -210,6 +215,14 @@ THREE.EarthTiles = function (render) {
     //     return;
     // }
     this.update = function (tile) {
+        console.log('tile:', tile);
+        console.log('scope.currentTile:', scope.currentTile);
+        if (scope.currentTile.x === tile.x && scope.currentTile.y === tile.y && scope.currentTile.z === tile.z) {
+            console.log("DO NOT UPDATE");
+            return;
+        }
+        scope.currentTile = tile;
+
         scope.remove(scope.earth);
         // scope.removeKids(scope.earth, 5);
         // scope.earth.dispose();
