@@ -5,9 +5,9 @@
 // This set of controls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
 //
-//    Orbit - left mouse / touch: one-finger move
+//    Orbit - right mouse / touch: two-finger move
 //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-//    Pan - right mouse, or arrow keys / touch: two-finger move
+//    Pan - left mouse, or arrow keys / touch: one-finger move
 EARTH_RADIUS = 6371 * 1000;
 
 THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
@@ -736,16 +736,19 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		//console.log( 'handleTouchStartDolly' );
 
 		if (scope.enableRotate) {
-			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+			// var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
 			// rotateStart.set( event.touches[ 1 ].pageX, 0 );
-			touchXWay = ((event.touches[1].pageY - event.touches[0].pageY) < 0) ? 1 : -1;
-			touchYWay = ((event.touches[1].pageX - event.touches[0].pageX) < 0) ? -1 : 1;
-			touchXWay = 0;
+			// touchXWay = ((event.touches[1].pageY - event.touches[0].pageY) < 0) ? 1 : -1;
+			// touchYWay = ((event.touches[1].pageX - event.touches[0].pageX) < 0) ? -1 : 1;
+			// touchXWay = 0;
 
+			// rotateStart.set(
+			// 	(touchXWay * (event.touches[0].pageX - event.touches[1].pageX) + touchYWay * (event.touches[0].pageY - event.touches[1].pageY)) / 2,
+			// 	event.touches[0].pageY + event.touches[1].pageY);
 			rotateStart.set(
-				(touchXWay * (event.touches[0].pageX - event.touches[1].pageX) + touchYWay * (event.touches[0].pageY - event.touches[1].pageY)) / 2,
-				event.touches[0].pageY + event.touches[1].pageY);
+				(event.touches[0].pageX + event.touches[1].pageX) / 2,
+				(event.touches[0].pageY + event.touches[1].pageY) / 2);
 
 			console.log('rotateStart:', rotateStart);
 		}
@@ -809,13 +812,13 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 		//console.log( 'handleTouchMoveRotate' );
 		if (scope.enableRotate) {
 
-			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-
 			rotateEnd.set(
-				(touchXWay * (event.touches[0].pageX - event.touches[1].pageX) + touchYWay * (event.touches[0].pageY - event.touches[1].pageY)) / 2,
-				event.touches[0].pageY + event.touches[1].pageY);
+				(event.touches[0].pageX + event.touches[1].pageX) / 2,
+				(event.touches[0].pageY + event.touches[1].pageY) / 2);
 
 			rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+
+			let element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
 			rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
 
