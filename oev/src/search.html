@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js webgl - orbit controls</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			color: #000;
+			font-family: Monospace;
+			font-size: 13px;
+			text-align: center;
+			font-weight: bold;
+
+			background-color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#info {
+			color: #000;
+			position: absolute;
+			top: 0px;
+			width: 100%;
+			padding: 5px;
+
+		}
+
+		a {
+			color: red;
+		}
+
+
+		/* input[type="search"] {
+			padding: 1px;
+			-webkit-appearance: searchfield;
+			box-sizing: border-box;
+			-webkit-appearance: textfield;
+			background-color: white;
+			-webkit-rtl-ordering: logical;
+			cursor: text;
+			padding: 1px;
+			border-width: 2px;
+			border-style: inset;
+			border-color: initial;
+			border-image: initial;
+			text-rendering: auto;
+			color: initial;
+			letter-spacing: normal;
+			word-spacing: normal;
+			text-transform: none;
+			text-indent: 0px;
+			text-shadow: none;
+			display: inline-block;
+			text-align: start;
+			margin: 0em;
+			font: 400 13.3333px Arial;
+		} */
+
+		/* button[type="search"] {
+			text-rendering: auto;
+			color: initial;
+			letter-spacing: normal;
+			word-spacing: normal;
+			text-transform: none;
+			text-indent: 0px;
+			text-shadow: none;
+			display: inline-block;
+			text-align: start;
+			margin: 0em;
+			font: 400 13.3333px Arial;
+			-webkit-writing-mode: horizontal-tb !important;
+		} */
+
+		.search-control {
+			position: absolute;
+			left: 0px;
+			width: 400px;
+			/* height: 200px; */
+			border: none;
+			padding: 0px;
+			background-color: white;
+		}
+
+		#results {
+			padding: 0px;
+			border: 1px;
+			/* width: 220px; */
+			/* height: 220px; */
+			position: absolute;
+			left: 0px;
+			top: 24px;
+			background-color: yellow;
+		}
+
+		#mySearch {
+			/* background: url(./pic/fullscreen.svg) no-repeat; */
+			/* cursor: pointer; */
+			border: 1px;
+			width: 376px;
+			height: 22px;
+			position: absolute;
+			left: 24px;
+			/* bottom: 0;
+			right: 0; */
+			/* text-align: start; */
+			/* box-sizing: border-box; */
+			/* width: 130px; */
+			/* position: absolute;
+			top: 0;
+			left: 15;
+			width: 300px; */
+			/* border: 3px solid #73AD21;
+			padding: 10px; */
+			/* background-color: #e4f0f5; */
+			/* background-color: #e4f0f5;
+			color: #29627e;
+			font-size: 1.2rem;
+			padding: 1px;
+			-webkit-appearance: searchfield;
+			box-sizing: border-box;
+			-webkit-appearance: textfield;
+			background-color: white;
+			-webkit-rtl-ordering: logical;
+			cursor: text;
+			padding: 1px;
+			border-width: 2px;
+			border-style: inset;
+			border-color: initial;
+			border-image: initial;
+			text-rendering: auto;
+			color: initial;
+			letter-spacing: normal;
+			word-spacing: normal;
+			text-transform: none;
+			text-indent: 0px;
+			text-shadow: none;
+			display: inline-block;
+			text-align: start;
+			margin: 0em;
+			font: 400 13.3333px Arial; */
+		}
+
+		#myButton {
+			width: 22px;
+			height: 22px;
+			/* text-align: start; */
+			position: absolute;
+			top: 0;
+			left: 0;
+			background-color: #e4f0f5;
+			color: #29627e;
+			background-image: url(pic/searchicon.png);
+
+			/* font-size: 1.2rem;
+			text-rendering: auto;
+			color: initial;
+			letter-spacing: normal;
+			word-spacing: normal;
+			text-transform: none;
+			text-indent: 0px;
+			text-shadow: none;
+			display: inline-block;
+			text-align: start;
+			margin: 0em;
+			font: 400 13.3333px Arial;
+			-webkit-writing-mode: horizontal-tb !important; */
+		}
+
+		#fullscreenButton {
+			/* background-color: #ff0000; */
+			background: url(./pic/fullscreen.svg) no-repeat;
+			cursor: pointer;
+			border: none;
+			width: 22px;
+			height: 22px;
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+
+
+		/* #fullscreenButton:active {
+			background: url(./pic/fullscreen.svg) no-repeat;
+		} */
+	</style>
+</head>
+
+<body>
+	<div id="info">
+		<a href="https://wiki.openstreetmap.org/wiki/Open_Earth_View" target="_blank" rel="noopener">Open Earth View</a> - World navigation
+	</div>
+	<!-- <div id="search">
+		<form role="search"> -->
+	<div id="search-control" class="search-control">
+		<input type="search" id="mySearch" name="q">
+		<button type="search" id="myButton" onclick='search();'></button>
+		<div id="results"></div>
+	</div>
+	<!-- </form>
+	</div> -->
+	<div id="fullscreen">
+		<!-- <input id="fullscreenButton" type="submit" value=""> -->
+		<button id="fullscreenButton" onclick="fullscreen()" />
+	</div>
+	<script src="http://chaijs.com/chai.js" type="text/javascript" /></script>
+	<script src="http://threejs.org/build/three.min.js"></script>
+	<!-- <script src="build/three.min.js"></script> -->
+	<script src="js/Toolbox.js"></script>
+	<script src="js/controls/PlanetControls.js"></script>
+	<script src="js/mesh/EarthTiles.js"></script>
+	<script src="js/tiler/BasicTiler.js"></script>
+
+	<!-- <script src="js/Detector.js"></script> -->
+
+	<script>
+		// cf https://www.codexpedia.com/javascript/submitting-html-form-without-reload-the-page/
+		function search() {
+			// console.log('Search !');
+			// console.log('mySearch:', document.getElementById('mySearch').value);
+			// // https://nominatim.openstreetmap.org/search?q=135+pilkington+avenue,+birmingham&format=xml&polygon=1&addressdetails=1
+			// var http = new XMLHttpRequest();
+			// http.open("POST", "https://nominatim.openstreetmap.org/search", true);
+			// http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			// var params = "q=" + "135+pilkington+avenue,+birmingham&format=xml&polygon=1&addressdetails=1";
+			// http.send(params);
+			// http.onload = function () {
+			// 	alert(http.responseText);
+			// }
+			// searchDiv = document.getElementById('search-control');
+			// console.log('searchDiv:', searchDiv);
+			// var node = document.createElement("LI");                 // Create a <li> node
+			// var textnode = document.createTextNode("Water");         // Create a text node
+			// node.appendChild(textnode);
+			// searchDiv.appendChild(node);
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					let result = JSON.parse(this.responseText);
+					let results = document.getElementById("results");
+					for (i in result) {
+
+						var node = document.createElement("a");                 // Create a <li> node
+						// var h1 = document.getElementsByTagName("H1")[0];   // Get the first <h1> element in the document
+						var att = document.createAttribute("href");       // Create a "class" attribute
+						att.value = "/search.html?alt=10000"
+							+ "&lon=" + result[i].lon
+							+ "&lat=" + result[i].lat
+							+ "&theta=0&phi=0";                           // Set the value of the class attribute
+
+						node.setAttributeNode(att);
+						var textnode = document.createTextNode(JSON.stringify(result[i].display_name));         // Create a text node
+						node.appendChild(textnode);
+
+						results.appendChild(node);
+						// result[i];
+						console.log('result:', result[i]);
+
+					}
+					// document.getElementById("results").innerHTML = "<pre>" + this.responseText + "</pre>";
+					// var str = JSON.stringify(obj, null, 2); // spacing level = 2
+
+				}
+			};
+			console.log('mySearch.value:', mySearch.value);
+			let request = "https://nominatim.openstreetmap.org/?format=json&addressdetails=1&q=" + encodeURI(mySearch.value) + "&format=json&limit=1";
+			console.log('request:', request);
+			xhttp.open("GET", request, true);
+			xhttp.send();
+			// var myURL = "http://nominatim.openstreetmap.org/reverse";
+			// $("#docs").appendChild("<p>" + myURL + "</p>");
+			// $.ajax({
+			// 	dataType: "xml",
+			// 	url: myURL,
+			// 	type: "GET",
+			// 	data: getMyData(),
+			// 	mimeType: "xml",
+			// 	success: function (data, textStatus, jqXHR) {
+			// 		alert("1");
+			// 		var xmlData = data,
+			// 			xmlDoc = $.parseXML(xmlData),
+			// 			$xml = $(xmlDoc),
+			// 			$result = $xml.find("road");
+
+			// 		alert($xml.text());
+			// 		$("#docs").append($result.text());
+			// 	},
+			// 	error: function (response) {
+			// 		alert("An error occurred while communicating with the OpenLS service. Please try again.");
+			// 	}
+			// });
+		}
+		let fullscreenFlag = false;
+		/* View in fullscreen */
+
+		function fullscreen() {
+			console.log('fullscreen call');
+
+			if (fullscreenFlag) {
+				console.log('exit fullscreen');
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				} else if (document.mozCancelFullScreen) {
+					document.mozCancelFullScreen();
+				} else if (document.webkitExitFullscreen) {
+					document.webkitExitFullscreen();
+				}
+				document.getElementById('fullscreenButton').style.backgroundImage = "url(./pic/fullscreen.svg)"
+			} else {
+				let elem = document.documentElement;
+				if (elem.requestFullscreen) {
+					elem.requestFullscreen();
+				} else if (elem.mozRequestFullScreen) { /* Firefox */
+					elem.mozRequestFullScreen();
+				} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+					elem.webkitRequestFullscreen();
+				} else if (elem.msRequestFullscreen) { /* IE/Edge */
+					elem.msRequestFullscreen();
+				}
+				document.getElementById('fullscreenButton').style.backgroundImage = "url(./pic/fullscreenExit.svg)"
+			}
+			console.log('fullscreenFlag:', fullscreenFlag);
+			fullscreenFlag = (!fullscreenFlag);
+			console.log('fullscreenFlag:', fullscreenFlag);
+		}
+
+		var radius = 6371 * 1000;
+		var tiler;
+		var camera, controls, scene, renderer, cameraSurvey;
+		let timer;
+
+		test();
+		init();
+		render(); // remove when using next line for animation loop (requestAnimationFrame)
+		move();
+
+		//animate();
+
+		function test() {
+			THREE.Toolbox.test();
+			THREE.BasicTiler.test();
+		}
+		function init() {
+			// THREE.Cache.enabled = false;
+			tiler = new THREE.BasicTiler();
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xcccccc);
+			scene.fog = new THREE.FogExp2(0xcccccc, 0.1 / radius);
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			document.body.appendChild(renderer.domElement);
+
+			camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, radius * 20);
+			cameraSurvey = new THREE.Object3D();
+
+			// camera.position.setFromSpherical(THREE.Spherical(radius * 5, 0, 0));
+			// camera.quaternion.y = Math.PI/4;
+			// camera.quaternion.z = Math.PI/4;
+			// camera.position.setFromSpherical(THREE.Spherical(radius * 1.8, 0, 0));
+			console.log('camera.position:', camera.position);
+
+			scene.add(cameraSurvey);
+
+			// controls
+			controls = new THREE.PlanetControls(
+				camera,
+				renderer.domElement,
+				cameraSurvey,
+				() => {
+					// earthTiles.update(THREE.BasicTiler.getTiles(controls.getPosition()));
+					// delayUpdateScene();
+					earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
+
+				}
+			);
+			// earthTiles.update(tiles);
+
+			// controls = new THREE.OrbitControls( camera, renderer.domElement, target );
+			// controls.maxPolarAngle = 24 * Math.PI / 48; // radians
+			controls.addEventListener('change', render);
+
+			controls.minDistance = 1;
+			controls.maxDistance = radius * 4;
+
+			controls.maxPolarAngle = Math.PI / 2;
+
+			// // Longitude
+			// controls.minLongitudePlanet = 0; // radians
+			// controls.maxLongitudePlanet = Math.PI; // radians
+			// // Latitude
+			// controls.minLatitudePlanet = - Math.PI/2; // radians
+			// controls.maxLatitudePlanet = + Math.PI/2; // radians
+
+			// world
+
+			earth = new THREE.Object3D();
+			scene.add(earth);
+			earthTiles = new THREE.EarthTiles(render);
+
+			earthTiles.tiles = [
+				"https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+				"https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+				"https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+				"https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+			];
+			// earthTiles.tiles = [
+			// 	'http://localhost:2018/{z}/{x}/{y}.png',
+			// ];
+			// earthTiles.tiles = [
+			// 	'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			// 	'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			// 	'http://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			// ];
+			// http://localhost:2018/12/2075/1411.png
+			// earthTiles.tiles = ['http://localhost:2017/S0-modele--renault-kadjar.jpg'];
+			earth.add(earthTiles.getObject());
+			// let tile = 
+			// earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
+
+
+			// textureLoader = new THREE.TextureLoader();
+
+			// textureLoader.load(
+			// 	'textures/planets/earth_atmos_4096.jpg',
+			// 	function( tex ) {
+			// 		var geometry = new THREE.SphereBufferGeometry( radius, 100, 50 );
+			// 		var material = new THREE.MeshPhongMaterial( {
+			// 			map: tex,
+			// 			color: 0xffffff,
+			// 			shininess: 200,
+			// 			needsUpdate: true
+			// 		} );
+			// 		var mesh = new THREE.Mesh( geometry, material );
+			// 		mesh.position.set( 0, 0, 0 );
+			// 		scene.add( mesh );
+			// 		render();
+			// 	}
+			// );
+
+			// // target axes
+			// var axesCenter = new THREE.AxesHelper(2000);
+			// axesCenter.position.set( 0, 0, 0 );
+			// scene.add(axesCenter);
+
+			// // target axes
+			// axes = new THREE.AxesHelper(2000);
+			// axes.position.set( 0, 0, 0 );
+			// scene.add(axes);
+
+			// lights
+
+			var light = new THREE.DirectionalLight(0xffffff);
+			light.position.set(1, 1, 1);
+			scene.add(light);
+
+			var light = new THREE.DirectionalLight(0x002288);
+			light.position.set(-1, -1, -1);
+			scene.add(light);
+
+			var light = new THREE.AmbientLight(0x222222);
+			scene.add(light);
+
+			window.addEventListener('resize', onWindowResize, false);
+
+		}
+
+		function move() {
+			var z, x, y;
+			// var position = {
+			// 	altitude: radius * 4,
+			// 	lon: 0,
+			// 	lat: Math.PI / 4,
+			// 	theta: 0,
+			// 	phi: Math.PI / 4
+			// };
+			// var position = {
+			// 	alt: radius * 4,
+			// 	lon: Math.PI/32,
+			// 	lat: Math.PI/32,
+			// 	theta: 0,
+			// 	phi: 0
+			// };
+			// var position = {
+			// 	alt: 12597.488437942575,
+			// 	lon: 0.01600890043963752,
+			// 	lat: 0.6790204737589939,
+			// 	theta: 0,
+			// 	phi: 0
+			// };
+			// };
+			// let position = {
+			// 	alt: radius,
+			// 	lon: 0.6863364576566329,
+			// 	lat: 0.32783806761943424,
+			// 	theta: 0,
+			// 	phi: 0
+			// };
+			let position = {
+				alt: 100 * 1000,
+				lon: 2.4 * Math.PI / 180,
+				lat: 48.9 * Math.PI / 180,
+				theta: 0,
+				phi: 0
+			};
+			let url_string = window.location.href;
+			let url = new URL(url_string);
+			console.log('url.searchParams:', url.searchParams.toString());
+			if (url.searchParams.has("alt")) position.alt = parseFloat(url.searchParams.get("alt"));
+			if (url.searchParams.has("lon")) position.lon = parseFloat(url.searchParams.get("lon")) * Math.PI / 180;
+			if (url.searchParams.has("lat")) position.lat = parseFloat(url.searchParams.get("lat")) * Math.PI / 180;
+			if (url.searchParams.has("theta")) position.theta = parseFloat(url.searchParams.get("theta"));
+			if (url.searchParams.has("phi")) position.phi = parseFloat(url.searchParams.get("phi"));
+
+			console.log('position:', position);
+			console.log('position:', position.alt, position.lon * 180 / Math.PI, position.lat * 180 / Math.PI);
+			controls.move(position);
+			let tile = THREE.BasicTiler.getTile(position);
+			// tiles = [{
+			//         z: 3,
+			//         x: 4,
+			//         y: 2
+			// }];
+
+			console.log('tile:', tile);
+			earthTiles.update(tile);
+			// controls.move(position);
+			// http://localhost:2015/indexMemoryTest.html
+			// var i = 0;
+			// while (i < 120) {
+			// 	(function (i) {
+			// 		let limits;
+			// 		let position;
+			// 		let tile;
+			// 		setTimeout(function () {
+			// 			limits = {
+			// 				alt: { min: 1, max: radius },
+			// 				lon: { min: 0 * Math.PI / 180, max: 5 * Math.PI / 180 },
+			// 				lat: { min: 46 * Math.PI / 180, max: 50 * Math.PI / 180 }
+			// 			}
+			// 			position = {
+			// 				alt: limits.alt.min + Math.random() * (limits.alt.max - limits.alt.min),
+			// 				lon: limits.lon.min + Math.random() * (limits.lon.max - limits.lon.min),
+			// 				lat: limits.lat.min + Math.random() * (limits.lat.max - limits.lat.min),
+			// 				theta: 0,
+			// 				phi: 0
+			// 			};
+			// 			// console.log('position:', position);
+			// 			tile = THREE.BasicTiler.getTile(position);
+			// 			controls.move(position);
+
+			// 			// console.log('tiles:', tiles);
+			// 			// console.log('i:', i);
+			// 			// console.log('coucou');
+			// 			earthTiles.update(tile);
+			// 			// earthTiles.update(THREE.BasicTiler.getTile(controls.getPosition()));
+
+			// 			// console.log('THREE.Cache.files:', THREE.Cache.files);
+			// 		}, 1500 * (i + 1));
+			// 	})(i++)
+			// }
+
+
+		}
+
+		// function onWindowResize() {
+		// 	console.log('Window resize');
+		// 	camera.aspect = window.innerWidth / window.innerHeight;
+		// 	camera.updateProjectionMatrix();
+
+		// 	renderer.setSize(window.innerWidth, window.innerHeight);
+
+		// }
+		let tanFOV = Math.tan(((Math.PI / 180) * camera.fov / 2));
+		let windowHeight = window.innerHeight;
+		function onWindowResize(event) {
+			// 	console.log('Window resize');
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+
+			// adjust the FOV
+			camera.fov = (360 / Math.PI) * Math.atan(tanFOV * (window.innerHeight / windowHeight));
+
+			camera.updateProjectionMatrix();
+			// camera.lookAt(scene.position);
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.render(scene, camera);
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+
+			controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+			render();
+
+		}
+
+		function render() {
+
+			// renderer.render( scene, camera );
+			renderer.render(scene, camera);
+			// delayUpdateScene();
+
+			// if (typeof axes !== "undefined") {
+			// 	// axes.position.set(controls.target);
+			// 	axes.position.setX( controls.target.x );
+			// 	axes.position.setY( controls.target.y );
+			// 	axes.position.setZ( controls.target.z );
+			// 	// axes.rotation.x = controls.targetS.phi;
+			// 	// axes.rotation.y = controls.targetS.theta;
+			// 	// axes.rotation.x = controls.targetS.phi;
+			// 	// axes.rotation.set( controls.targetS.theta );
+			// }
+
+		}
+
+	</script>
+
+</body>
+
+</html>
