@@ -195,7 +195,7 @@
 	<!-- <div id="search">
 		<form role="search"> -->
 	<div id="search-control" class="search-control">
-		<input type="search" id="mySearch" name="q">
+		<input type="search" id="mySearch" name="q" onKeyPress="checkEnter(event)">
 		<button type="search" id="myButton" onclick='search();'></button>
 		<div id="results"></div>
 	</div>
@@ -216,20 +216,34 @@
 	<!-- <script src="js/Detector.js"></script> -->
 
 	<script>
-		function colorElementRed(id) {
-			var el = document.getElementById(id);
-			el.style.color = "red";
-		}
-		function isHidden(el) {
-			var style = window.getComputedStyle(el);
-			return (style.display === 'none')
+
+		function checkEnter(e) { //e is event object passed from function invocation
+			var characterCode //literal character code will be stored in this variable
+
+			if (e && e.which) { //if which property of event object is supported (NN4)
+				e = e
+				characterCode = e.which //character code is contained in NN4's which property
+			}
+			else {
+				e = event
+				characterCode = e.keyCode //character code is contained in IE's keyCode property
+			}
+
+			if (characterCode == 13) { //if generated character code is equal to ascii 13 (if enter key)
+				search(true) //submit the form
+				return false
+			}
+			else {
+				return true
+			}
+
 		}
 		// cf https://www.codexpedia.com/javascript/submitting-html-form-without-reload-the-page/
-		function search() {
+		function search(show) {
 			// mySearch = document.getElementById("mySearch");
 			// console.log('mySearch.style:', mySearch.style);
 			style = window.getComputedStyle(mySearch);
-			document.getElementById("mySearch").style.visibility = (style.visibility === 'hidden') ? 'visible' : 'hidden';
+			document.getElementById("mySearch").style.visibility = (style.visibility === 'hidden' || show) ? 'visible' : 'hidden';
 			// console.log('style:', style);
 
 			// if (mySearch.offsetParent === null
