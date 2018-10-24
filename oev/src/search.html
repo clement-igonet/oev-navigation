@@ -90,18 +90,19 @@
 			/* height: 220px; */
 			position: absolute;
 			left: 0px;
-			top: 24px;
+			top: 32px;
 			background-color: yellow;
 		}
 
 		#mySearch {
+			visibility: hidden;
 			/* background: url(./pic/fullscreen.svg) no-repeat; */
 			/* cursor: pointer; */
 			border: 1px;
 			width: 376px;
-			height: 64px;
+			height: 32px;
 			position: absolute;
-			left: 64px;
+			left: 32px;
 			/* bottom: 0;
 			right: 0; */
 			/* text-align: start; */
@@ -143,15 +144,15 @@
 		}
 
 		#myButton {
-			width: 64px;
-			height: 64px;
+			width: 32px;
+			height: 32px;
 			/* text-align: start; */
 			position: absolute;
 			top: 0;
 			left: 0;
 			background-color: #e4f0f5;
 			color: #29627e;
-			background-image: url(pic/searchicon.png);
+			background-image: url(pic/searchicon_32.png);
 
 			/* font-size: 1.2rem;
 			text-rendering: auto;
@@ -170,11 +171,11 @@
 
 		#fullscreenButton {
 			/* background-color: #ff0000; */
-			background: url(./pic/fullscreen.svg) no-repeat;
+			background: url(./pic/fullscreen_32.png) no-repeat;
 			cursor: pointer;
 			border: none;
-			width: 64px;
-			height: 64px;
+			width: 32px;
+			height: 32px;
 			position: absolute;
 			bottom: 0;
 			right: 0;
@@ -215,8 +216,27 @@
 	<!-- <script src="js/Detector.js"></script> -->
 
 	<script>
+		function colorElementRed(id) {
+			var el = document.getElementById(id);
+			el.style.color = "red";
+		}
+		function isHidden(el) {
+			var style = window.getComputedStyle(el);
+			return (style.display === 'none')
+		}
 		// cf https://www.codexpedia.com/javascript/submitting-html-form-without-reload-the-page/
 		function search() {
+			// mySearch = document.getElementById("mySearch");
+			// console.log('mySearch.style:', mySearch.style);
+			style = window.getComputedStyle(mySearch);
+			document.getElementById("mySearch").style.visibility = (style.visibility === 'hidden') ? 'visible' : 'hidden';
+			// console.log('style:', style);
+
+			// if (mySearch.offsetParent === null
+			// mySearch.style.vibility = !mySearch.style.vibility
+			// if (!mySearch.style.vibility) { }
+			// mySearch.value
+			// visibility: hidden;
 			// console.log('Search !');
 			// console.log('mySearch:', document.getElementById('mySearch').value);
 			// // https://nominatim.openstreetmap.org/search?q=135+pilkington+avenue,+birmingham&format=xml&polygon=1&addressdetails=1
@@ -256,7 +276,7 @@
 
 						results.appendChild(node);
 						// result[i];
-						console.log('result:', result[i]);
+						// console.log('result:', result[i]);
 
 					}
 					// document.getElementById("results").innerHTML = "<pre>" + this.responseText + "</pre>";
@@ -264,9 +284,9 @@
 
 				}
 			};
-			console.log('mySearch.value:', mySearch.value);
+			// console.log('mySearch.value:', mySearch.value);
 			let request = "https://nominatim.openstreetmap.org/?format=json&addressdetails=1&q=" + encodeURI(mySearch.value) + "&format=json&limit=1";
-			console.log('request:', request);
+			// console.log('request:', request);
 			xhttp.open("GET", request, true);
 			xhttp.send();
 			// var myURL = "http://nominatim.openstreetmap.org/reverse";
@@ -307,7 +327,7 @@
 				} else if (document.webkitExitFullscreen) {
 					document.webkitExitFullscreen();
 				}
-				document.getElementById('fullscreenButton').style.backgroundImage = "url(./pic/fullscreen.svg)"
+				document.getElementById('fullscreenButton').style.backgroundImage = "url(./pic/fullscreen_32.png)"
 			} else {
 				let elem = document.documentElement;
 				if (elem.requestFullscreen) {
@@ -319,7 +339,7 @@
 				} else if (elem.msRequestFullscreen) { /* IE/Edge */
 					elem.msRequestFullscreen();
 				}
-				document.getElementById('fullscreenButton').style.backgroundImage = "url(./pic/fullscreenExit.svg)"
+				document.getElementById('fullscreenButton').style.backgroundImage = "url(./pic/fullscreenExit_32.png)"
 			}
 			console.log('fullscreenFlag:', fullscreenFlag);
 			fullscreenFlag = (!fullscreenFlag);
