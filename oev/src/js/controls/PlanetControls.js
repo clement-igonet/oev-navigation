@@ -33,7 +33,7 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	this.johnRadius.position.x = EARTH_RADIUS;
 	this.cameraRadius.position.x = EARTH_RADIUS * 1.8;
-	this.object.quaternion.y = Math.PI / 4;
+	this.object.rotation.y = Math.PI / 2;
 	// console.log('this.object.quaternion:', this.object.quaternion);
 	// camera.position.setFromSpherical(THREE.Spherical(radius * 1.8, Math.PI / 2, 0));
 	// cameraSurveyAxes.updateMatrix();
@@ -130,13 +130,13 @@ THREE.PlanetControls = function (object, domElement, cameraSurvey, userUpdate) {
 
 	this.getPolarAngle = function () {
 
-		return cameraPhi.quaternion.z;
+		return cameraPhi.rotation.z;
 
 	};
 
 	this.getAzimuthalAngle = function () {
 
-		return cameraTheta.quaternion.y;
+		return cameraTheta.rotation.y;
 
 	};
 
